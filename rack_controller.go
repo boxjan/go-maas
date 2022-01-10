@@ -1,0 +1,5 @@
+package maas
+
+func GetAllRack() {
+
+}
