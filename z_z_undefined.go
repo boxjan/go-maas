@@ -8,5 +8,14 @@ func (u UndefinedStruct) Get(k string) interface{} {
 	return u[k]
 }
 
-type T struct {
+func (u *UndefinedStruct) setClient(client *Client) {
+
+}
+
+func (u *UndefinedStruct) getClient() *Client {
+	return nil
+}
+
+func (u *UndefinedStruct) recursiveClient() {
+
 }

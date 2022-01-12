@@ -20,10 +20,16 @@ type ObjInterface interface {
 var ObjInterfaceType = reflect.TypeOf((*ObjInterface)(nil)).Elem()
 
 func (o *Obj) getClient() *Client {
-	return o.client
+	if o != nil {
+		return o.client
+	}
+	return nil
 }
 
 func (o *Obj) setClient(c *Client) {
+	if o == nil || c == nil {
+		return
+	}
 	o.client = c
 }
 
