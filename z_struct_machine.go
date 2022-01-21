@@ -25,6 +25,8 @@ type Machine struct {
 	StatusMessage          UndefinedType   `json:"status_message"`
 	StatusName             UndefinedType   `json:"status_name"`
 	SpecialFileSystems     UndefinedType   `json:"special_filesystems"`
+	Pod                    UndefinedType   `json:"pod"`
+	DefaultGateway         DefaultGateway  `json:"default_gateway"`
 }
 
 func (m *Machine) recursiveClient() {

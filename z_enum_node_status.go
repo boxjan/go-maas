@@ -27,7 +27,7 @@ const ( // https://github.com/maas/maas/blob/31a95206af/src/maasserver/enum.py
 	NodeStatusFailedTesting
 )
 
-var NodeStatusMappingStr = map[NodeStatus]string{
+var NodeStatusStrMap = map[NodeStatus]string{
 	NodeStatusNew:                      "New",
 	NodeStatusCommissioning:            "Commissioning",
 	NodeStatusFailedCommissioning:      "Failed commissioning",
@@ -53,14 +53,14 @@ var NodeStatusMappingStr = map[NodeStatus]string{
 }
 
 func (ns NodeStatus) String() string {
-	if str, exist := NodeStatusMappingStr[ns]; exist {
+	if str, exist := NodeStatusStrMap[ns]; exist {
 		return str
 	}
 	return ""
 }
 
 func NodeStatusStrCover(s string) NodeStatus {
-	for k, v := range NodeStatusMappingStr {
+	for k, v := range NodeStatusStrMap {
 		if v == s {
 			return k
 		}

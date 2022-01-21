@@ -116,7 +116,12 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 }
 
 func (c *Client) buildRequestUrl(api string) (*url.URL, error) {
+
+	if strings.HasPrefix(api, c.apiBaseUrl.Path) {
+		api = strings.TrimPrefix(api, c.apiBaseUrl.Path)
+	}
 	uS := JoinURLs(c.apiBaseUrl.String(), api)
+
 	uS = EnsureTrailingSlash(uS)
 
 	finalUri, err := url.Parse(uS)

@@ -14,8 +14,8 @@ type Interface struct {
 	Tags            []string      `json:"tags"`
 	Enabled         bool          `json:"enabled"`
 	Links           UndefinedType `json:"links"`
-	Params          string        `json:"params"`
-	Discovered      interface{}   `json:"discovered"`
+	Params          UndefinedType `json:"params"`
+	Discovered      UndefinedType `json:"discovered"`
 	EffectiveMtu    int           `json:"effective_mtu"`
 	Vendor          UndefinedType `json:"vendor"`
 	Product         string        `json:"product"`

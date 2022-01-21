@@ -13,14 +13,22 @@ func (c *Client) GetMachines(filters ...string) ([]*Machine, error) {
 
 	params := url.Values{}
 	for i := 0; i < len(filters); i += 2 {
-		params[filters[i]] = []string{filters[i+1]}
+		if _, ok := params[filters[i]]; !ok {
+			params[filters[i]] = make([]string, 0, 2)
+		}
+		params[filters[i]] = append(params[filters[i]], filters[i+1])
 	}
+
 	rsp, err := c.TurnResponse(c.Get("machines", "", params))
 	if err != nil {
 		return nil, err
 	}
+
 	res := make([]*Machine, 0, 2)
-	json.Unmarshal(rsp, &res)
+	if err := json.Unmarshal(rsp, &res); err != nil {
+		return res, err
+	}
+
 	for _, m := range res {
 		m.setClient(c)
 		m.recursiveClient()
@@ -34,7 +42,8 @@ func (m *Machine) GetPowerParameters() (*Power, error) {
 	if c == nil {
 		return nil, ErrEmptyClient
 	}
-	rsp, err := c.TurnResponse(c.Get("machines/"+m.SystemId, "power_parameters", nil))
+
+	rsp, err := c.TurnResponse(c.Get(m.ResourceUri, "power_parameters", nil))
 	if err != nil {
 		return nil, err
 	}
@@ -43,3 +52,12 @@ func (m *Machine) GetPowerParameters() (*Power, error) {
 	json.Unmarshal(rsp, p)
 	return p, nil
 }
+
+//func (m *Machine) GetBlockDevices() ([]*BlockDevice, error) {
+//	c := m.getClient()
+//	if c == nil {
+//		return nil, ErrEmptyClient
+//	}
+//
+//	rsp, err
+//}

@@ -10,7 +10,7 @@ const (
 	NodeTypeRegionAndRackController
 )
 
-var NodeTypeMappingStr = map[NodeType]string{
+var NodeTypeStrMap = map[NodeType]string{
 	NodeTypeMachine:                 "Machine",
 	NodeTypeDevice:                  "Device",
 	NodeTypeRackController:          "Rack controller",
@@ -19,14 +19,14 @@ var NodeTypeMappingStr = map[NodeType]string{
 }
 
 func (nt NodeType) String() string {
-	if str, exist := NodeTypeMappingStr[nt]; exist {
+	if str, exist := NodeTypeStrMap[nt]; exist {
 		return str
 	}
 	return ""
 }
 
 func NodeTypeStrCover(s string) NodeType {
-	for k, v := range NodeTypeMappingStr {
+	for k, v := range NodeTypeStrMap {
 		if v == s {
 			return k
 		}

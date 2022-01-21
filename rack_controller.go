@@ -1,5 +1,5 @@
 package maas
 
-func GetAllRack() {
-
-}
+//func (c *Client) GetAllRack() ([]*RackController, error) {
+//
+//}
