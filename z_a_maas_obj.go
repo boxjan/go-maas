@@ -7,7 +7,8 @@ import (
 )
 
 type Obj struct {
-	ResourceUri string `json:"resource_uri"`
+	ResourceUri string                 `json:"resource_uri"`
+	X           map[string]interface{} `json:"-,remain"`
 	client      *Client
 }
 
