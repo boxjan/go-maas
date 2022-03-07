@@ -3,12 +3,13 @@ package maas
 import (
 	"encoding/json"
 	"github.com/mitchellh/mapstructure"
+	"reflect"
 )
 
 /*
 maas can change their output json in code easily,
-for keeping every thing in obj, we will use our json encoder
-and decoder to keep everything is in there.
+for keeping every thing in obj, we will use our json
+decoder to keep everything is in there.
 */
 
 func Unmarshal(data []byte, result interface{}) error {
@@ -38,29 +39,60 @@ func Unmarshal(data []byte, result interface{}) error {
 	return nil
 }
 
-func Marshal(source interface{}) ([]byte, error) {
-	if data, err := marshal(source); err != nil {
-		return nil, err
-	} else {
-		return json.Marshal(data)
-	}
-}
-
-func marshal(source interface{}) (data map[string]interface{}, err error) {
+func Marshal(source interface{}) (data []byte, err error) {
 	defer func() {
 		if e := recover(); e != nil {
-			var d2 map[string]interface{}
-			if d1, e1 := json.Marshal(source); e1 != nil {
-				data = nil
-				err = e1
-			} else if e2 := json.Unmarshal(d1, &d2); e2 != nil {
-				data = nil
-				err = e2
-			} else {
-				data = d2
-				err = nil
-			}
+			data, err = json.Marshal(source)
 		}
 	}()
 
+	dataVal := reflect.ValueOf(source)
+	dataTyp := dataVal.Type()
+
+	if dataTyp.Kind() != reflect.Struct {
+		return json.Marshal(source)
+	}
+
+	m := make(map[string]json.RawMessage)
+
+	for i := 0; i < dataVal.NumField(); i++ {
+		fieldTyp := dataTyp.Field(i)
+		fieldVal := dataVal.Field(i)
+
+		if fieldVal.Type() == ObjType {
+			b, e := json.Marshal(fieldVal.Interface())
+			if e != nil {
+				return nil, e
+			}
+			var t map[string]json.RawMessage
+			e = json.Unmarshal(b, &t)
+			if e != nil {
+				return nil, e
+			}
+
+			for k, v := range t {
+				if k == "-" {
+					continue
+				}
+				m[k] = v
+			}
+
+			if o, ok := fieldVal.Interface().(Obj); ok {
+				for k, v := range o.X {
+					m[k], err = json.Marshal(v)
+					if err != nil {
+						return nil, err
+					}
+				}
+			}
+
+		} else {
+			m[fieldTyp.Name], err = Marshal(fieldVal.Interface())
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return json.Marshal(m)
 }

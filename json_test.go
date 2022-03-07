@@ -14,7 +14,7 @@ func TestUnmarshalJson(t *testing.T) {
 	}
 
 	sourceDomain := Domain{
-		Obj:                 Obj{X: map[string]interface{}{"1": 2}},
+		Obj:                 Obj{ResourceUri: "aaaa", X: map[string]interface{}{"1": 2}},
 		Authoritative:       true,
 		Ttl:                 60,
 		Id:                  0,
