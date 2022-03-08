@@ -13,9 +13,10 @@ decoder to keep everything is in there.
 */
 
 func Unmarshal(data []byte, result interface{}) error {
+
 	temp := make(map[string]interface{})
 	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
+		return json.Unmarshal(data, result)
 	}
 
 	// create a mapstructure decoder

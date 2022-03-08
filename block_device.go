@@ -56,5 +56,5 @@ func (n *Node) CreateBlockDevices(name, model, serial, idPath string, size, bloc
 		params.Add("block_size", strconv.Itoa(blockSize))
 	}
 	c.Post(JoinURLs(n.ResourceUri, "blockdevices"), "", params, nil)
-
+	return nil, nil
 }

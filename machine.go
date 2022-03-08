@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-func (c *Client) GetMachines(filters ...string) ([]*Machine, error) {
+func (c *Client) GetMachines(filters ...string) (*[]Machine, error) {
 	if len(filters)%2 != 0 {
 		return nil, errors.New("errors machines filter")
 	}
@@ -24,16 +24,16 @@ func (c *Client) GetMachines(filters ...string) ([]*Machine, error) {
 		return nil, err
 	}
 
-	res := make([]*Machine, 0, 2)
-	if err := json.Unmarshal(rsp, &res); err != nil {
-		return res, err
+	res := make([]Machine, 0, 2)
+	if err := Unmarshal(rsp, &res); err != nil {
+		return nil, err
 	}
 
 	for _, m := range res {
 		m.setClient(c)
 		m.recursiveClient()
 	}
-	return res, err
+	return &res, err
 }
 
 func (m *Machine) GetPowerParameters() (*Power, error) {
