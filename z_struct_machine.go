@@ -1,5 +1,7 @@
 package maas
 
+const ResourcesMachines = "machines"
+
 type Machine struct {
 	Node
 	Owner                  string          `json:"owner"`
@@ -17,9 +19,9 @@ type Machine struct {
 	DisableIpv4            bool            `json:"disable_ipv4"`
 	ConstraintsByType      UndefinedStruct `json:"constraints_by_type"`
 	BootDisk               BlockDevice     `json:"boot_disk"`
-	BlockDeviceSet         []*BlockDevice  `json:"blockdevice_set"`
-	PhysicalBlockDeviceSet []*BlockDevice  `json:"physicalblockdevice_set"`
-	VirtualBlockDeviceSet  []*BlockDevice  `json:"virtualblockdevice_set"`
+	BlockDeviceSet         []BlockDevice   `json:"blockdevice_set"`
+	PhysicalBlockDeviceSet []BlockDevice   `json:"physicalblockdevice_set"`
+	VirtualBlockDeviceSet  []BlockDevice   `json:"virtualblockdevice_set"`
 	VolumeGroups           UndefinedType   `json:"volume_groups"`
 	Raids                  UndefinedType   `json:"raids"`
 	StatusMessage          UndefinedType   `json:"status_message"`
@@ -27,9 +29,5 @@ type Machine struct {
 	SpecialFileSystems     UndefinedType   `json:"special_filesystems"`
 	Pod                    UndefinedType   `json:"pod"`
 	DefaultGateway         DefaultGateway  `json:"default_gateway"`
-}
-
-func (m *Machine) recursiveClient() {
-	m.Node.setClient(m.getClient())
-	m.BootInterface.setClient(m.getClient())
+	NumaNodeSet            []NumaNode      `json:"numanode_set"`
 }

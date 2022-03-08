@@ -1,63 +1,67 @@
 package maas
 
-import (
-	"encoding/json"
-	"errors"
-	"net/url"
-)
+func (c *Client) DeleteMachine(systemId string) error {
+	_, err := c.TurnResponse(c.Delete(ResourcesMachines))
+	return err
+}
 
-func (c *Client) GetMachines(filters ...string) ([]*Machine, error) {
-	if len(filters)%2 != 0 {
-		return nil, errors.New("errors machines filter")
-	}
-
-	params := url.Values{}
-	for i := 0; i < len(filters); i += 2 {
-		if _, ok := params[filters[i]]; !ok {
-			params[filters[i]] = make([]string, 0, 2)
-		}
-		params[filters[i]] = append(params[filters[i]], filters[i+1])
-	}
-
-	rsp, err := c.TurnResponse(c.Get("machines", "", params))
+// GetMachine Reads a node with the given system_id.
+func (c *Client) GetMachine(systemId string) (*Machine, error) {
+	rsp, err := c.TurnResponse(c.Get(ResourcesMachines+systemId, "", nil))
 	if err != nil {
 		return nil, err
 	}
-
-	res := make([]*Machine, 0, 2)
-	if err := json.Unmarshal(rsp, &res); err != nil {
-		return res, err
-	}
-
-	for _, m := range res {
-		m.setClient(c)
-		m.recursiveClient()
-	}
-	return res, err
+	var m Machine
+	return &m, Unmarshal(rsp, &m)
 }
 
-func (m *Machine) GetPowerParameters() (*Power, error) {
+// GetMachineDetails will seturns system details -- for example, LLDP and lshw XML dumps.
+// Note that this is returned as BSON and not JSON. This is for efficiency,
+// but mainly because JSON can't do binary content without applying additional encoding
+// like base-64.
+func (c *Client) GetMachineDetails(systemId string) ([]byte, error) {
+	return c.TurnResponse(c.Get(ResourcesMachines+systemId, "details", nil))
+}
 
-	c := m.getClient()
-	if c == nil {
-		return nil, ErrEmptyClient
-	}
+// GetMachineCurtinConfig return the rendered curtin configuration for the machine.
+func (c *Client) GetMachineCurtinConfig(systemId string) ([]byte, error) {
+	return c.TurnResponse(
+		c.Get(ResourcesMachines+systemId, "get_curtin_config", nil))
+}
 
-	rsp, err := c.TurnResponse(c.Get(m.ResourceUri, "power_parameters", nil))
+// GetMachineToken return the maas token for the machine.
+func (c *Client) GetMachineToken(systemId string) (*AuthorisationToken, error) {
+	rsp, err := c.TurnResponse(c.Get(ResourcesMachines+systemId, "get_token", nil))
 	if err != nil {
 		return nil, err
 	}
-
-	p := &Power{}
-	json.Unmarshal(rsp, p)
-	return p, nil
+	var a AuthorisationToken
+	return &a, Unmarshal(rsp, &a)
 }
 
-//func (m *Machine) GetBlockDevices() ([]*BlockDevice, error) {
-//	c := m.getClient()
-//	if c == nil {
-//		return nil, ErrEmptyClient
-//	}
-//
-//	rsp, err
-//}
+// GetMachinePowerParameters Gets power parameters for a given system_id, if any.
+// For some types of power control this will include private information such as passwords and secret keys.
+func (c *Client) GetMachinePowerParameters(systemId string) (*PowerParameters, error) {
+	rsp, err := c.TurnResponse(c.Get(ResourcesMachines+systemId, "power_parameters", nil))
+	if err != nil {
+		return nil, err
+	}
+	var p PowerParameters
+	return &p, Unmarshal(rsp, &p)
+}
+
+// GetMachinePowerState Gets the power state of a given node. MAAS sends a request to the node's power controller,
+// which asks it about the node's state. The reply to this could be delayed by up to 30 seconds
+// while waiting for the power controller to respond. Use this method sparingly as it ties up an appserver
+// thread while waiting.
+func (c *Client) GetMachinePowerState(systemId string) (string, error) {
+	rsp, err := c.TurnResponse(c.Get(ResourcesMachines+systemId, "query_power_state", nil))
+	if err != nil {
+		return "?", err
+	}
+	type status struct {
+		State string `json:"state"`
+	}
+	var s status
+	return s.State, Unmarshal(rsp, s)
+}

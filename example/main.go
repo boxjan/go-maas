@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	maas "github.com/boxjan/go-maas"
+	"log"
 )
 
 func main() {
@@ -12,5 +14,22 @@ func main() {
 		"",
 		0,
 		"", nil)
-	fmt.Println(client, err)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	ips, err := client.GetIpAddresses("all", "true")
+	if err != nil {
+		log.Fatalln(err)
+
+	}
+	for _, ip := range *ips {
+		fabric, err := client.GetFabric(ip.Subnet.VLAN.FabricId)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		t := map[string]string{}
+		fmt.Printf("%s, %+v\n", json.Unmarshal([]byte(fabric.X["description"].(string)), &t), t)
+	}
+	fmt.Println(ips)
 }
