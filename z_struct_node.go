@@ -1,7 +1,5 @@
 package maas
 
-import "net"
-
 type Node struct {
 	Obj
 
@@ -21,7 +19,7 @@ type Node struct {
 	NetBoot                      bool         `json:"netboot"`
 	PowerType                    string       `json:"power_type"`
 	PowerState                   string       `json:"power_state"`
-	IpAddresses                  []net.IP     `json:"ip_addresses"`
+	IpAddresses                  []string     `json:"ip_addresses"`
 	InterfaceSet                 []Interface  `json:"interface_set"`
 	Zone                         *Zone        `json:"zone"`
 	StatusAction                 string       `json:"status_action"`

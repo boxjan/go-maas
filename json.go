@@ -8,15 +8,64 @@ import (
 
 /*
 maas can change their output json in code easily,
-for keeping every thing in obj, we will use our json
+for keeping every thing in obj, we will use our json encoder
 decoder to keep everything is in there.
+if you don't need you can use code import
 */
 
-func Unmarshal(data []byte, result interface{}) error {
+var dynamicValue = true
 
-	temp := make(map[string]interface{})
-	if err := json.Unmarshal(data, &temp); err != nil {
+func NoDynamicValue() {
+	dynamicValue = false
+}
+
+func DynamicValue() {
+	dynamicValue = true
+}
+
+// Unmarshal parses the JSON-encoded data and stores the result
+// in the value pointed to by v. If v is nil or not a pointer,
+// any data no define in struct, will be set in Obj.X
+func Unmarshal(data []byte, result interface{}) error {
+	if !dynamicValue {
 		return json.Unmarshal(data, result)
+	}
+	return unmarshal(data, result)
+}
+
+func unmarshalSlice(data, result interface{}) error {
+	dataVal := reflect.ValueOf(data)
+	resultVal := reflect.ValueOf(result)
+	resultSliceV := resultVal.Elem()
+
+	elementType := resultVal.Elem().Type().Elem()
+
+	dataLen := dataVal.Len()
+	for i := 0; i < dataLen; i++ {
+		oneVal := dataVal.Index(i)
+		element := reflect.New(elementType)
+
+		b, err := json.Marshal(oneVal.Interface())
+		if err != nil {
+			return err
+		}
+		err = unmarshal(b, element.Interface())
+		if err != nil {
+			return err
+		}
+		e := element.Interface()
+		resultSliceV.Set(reflect.Append(resultSliceV, reflect.ValueOf(e).Elem()))
+	}
+	return nil
+}
+
+func unmarshalMap(data, result interface{}) error {
+	temp, ok := data.(map[string]interface{})
+	if !ok {
+		return &json.UnmarshalTypeError{
+			Value: "map[string]interface{}",
+			Type:  reflect.TypeOf(data),
+		}
 	}
 
 	// create a mapstructure decoder
@@ -40,7 +89,37 @@ func Unmarshal(data []byte, result interface{}) error {
 	return nil
 }
 
+func unmarshal(data []byte, result interface{}) error {
+	rv := reflect.ValueOf(result)
+	test := reflect.New(rv.Elem().Type()).Interface()
+
+	// test it can be success unmarshal
+	if err := json.Unmarshal(data, test); err != nil {
+		return err
+	}
+
+	//
+	var any interface{}
+	if err := json.Unmarshal(data, &any); err != nil {
+		return err
+	}
+
+	anyVal := reflect.ValueOf(any)
+	switch anyVal.Kind() {
+	case reflect.Slice:
+		return unmarshalSlice(any, result)
+	case reflect.Map:
+		return unmarshalMap(any, result)
+	default:
+		return json.Unmarshal(data, result)
+	}
+}
+
 func Marshal(source interface{}) (data []byte, err error) {
+	if !dynamicValue {
+		return json.Marshal(source)
+	}
+
 	defer func() {
 		if e := recover(); e != nil {
 			data, err = json.Marshal(source)
@@ -49,6 +128,10 @@ func Marshal(source interface{}) (data []byte, err error) {
 
 	dataVal := reflect.ValueOf(source)
 	dataTyp := dataVal.Type()
+
+	switch dataTyp.Kind() {
+
+	}
 
 	if dataTyp.Kind() != reflect.Struct {
 		return json.Marshal(source)
