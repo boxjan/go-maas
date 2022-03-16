@@ -7,7 +7,6 @@ import (
 type Obj struct {
 	ResourceUri string                 `json:"resource_uri"`
 	X           map[string]interface{} `json:"-,remain"`
-	client      *Client
 }
 
 type ObjInterface interface {
@@ -18,24 +17,6 @@ type ObjInterface interface {
 
 var ObjInterfaceType = reflect.TypeOf((*ObjInterface)(nil)).Elem()
 var ObjType = reflect.TypeOf(Obj{})
-
-func (o *Obj) getClient() *Client {
-	if o != nil {
-		return o.client
-	}
-	return nil
-}
-
-func (o *Obj) setClient(c *Client) {
-	if o == nil || c == nil {
-		return
-	}
-	o.client = c
-}
-
-func (o *Obj) recursiveClient() {
-
-}
 
 //func recursiveClient(ptr interface{}, p reflect.Type) {
 //	for i := p.NumField() - 1; i >= 0; i-- {

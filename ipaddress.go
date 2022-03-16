@@ -18,10 +18,5 @@ func (c *Client) GetIpAddresses(filters ...string) (*[]Ipaddress, error) {
 		return nil, err
 	}
 
-	for _, k := range ipAddresses {
-		k.setClient(c)
-		k.recursiveClient()
-	}
-
 	return &ipAddresses, err
 }

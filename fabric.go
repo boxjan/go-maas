@@ -22,9 +22,6 @@ func (c *Client) GetFabrics(filters ...string) (*[]Fabric, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, k := range fabrics {
-		k.recursiveClient()
-	}
 	return &fabrics, nil
 }
 
@@ -34,11 +31,9 @@ func (c *Client) CreateFabric(name, description, classType string) (*Fabric, err
 	if len(name) != 0 {
 		params.Add("name", name)
 	}
-
 	if len(description) != 0 {
 		params.Add("description", description)
 	}
-
 	if len(classType) != 0 {
 		params.Add("class_type", classType)
 	}
@@ -53,8 +48,6 @@ func (c *Client) CreateFabric(name, description, classType string) (*Fabric, err
 	if err != nil {
 		return nil, err
 	}
-	fabric.setClient(c)
-	fabric.recursiveClient()
 	return &fabric, nil
 }
 
@@ -67,7 +60,5 @@ func (c *Client) GetFabric(id int) (*Fabric, error) {
 	if err != nil {
 		return nil, err
 	}
-	fabric.setClient(c)
-	fabric.recursiveClient()
 	return &fabric, nil
 }

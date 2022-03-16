@@ -25,7 +25,3 @@ type Interface struct {
 	LinkSpeed       int           `json:"link_speed"`
 	SriovMaxVf      UndefinedType `json:"sriov_max_vf"`
 }
-
-func (i *Interface) recursiveClient() {
-	i.Vlan.setClient(i.getClient())
-}

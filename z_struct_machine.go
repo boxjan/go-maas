@@ -1,5 +1,7 @@
 package maas
 
+const ResourcesMachines = "machines"
+
 type Machine struct {
 	Node
 	Owner                  string          `json:"owner"`
@@ -28,9 +30,4 @@ type Machine struct {
 	Pod                    UndefinedType   `json:"pod"`
 	DefaultGateway         DefaultGateway  `json:"default_gateway"`
 	NumaNodeSet            []NumaNode      `json:"numanode_set"`
-}
-
-func (m *Machine) recursiveClient() {
-	m.Node.setClient(m.getClient())
-	m.BootInterface.setClient(m.getClient())
 }

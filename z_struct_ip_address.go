@@ -11,11 +11,3 @@ type Ipaddress struct {
 	InterfaceSet  []Interface   `json:"interface_set"`
 	Owner         User          `json:"owner"`
 }
-
-func (s *Ipaddress) recursiveClient() {
-	s.Subnet.setClient(s.getClient())
-	s.Owner.setClient(s.getClient())
-	for _, k := range s.InterfaceSet {
-		k.setClient(s.getClient())
-	}
-}

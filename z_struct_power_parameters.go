@@ -1,23 +1,21 @@
 package maas
 
-import "encoding/json"
-
-type Power struct {
+type PowerParameters struct {
 	Raw          []byte `json:"-"`
 	PowerAddress string `json:"power_address"`
 	PowerUser    string `json:"power_user"`
 	PowerPass    string `json:"power_pass"`
 }
 
-type powerMid struct {
+type powerParametersMid struct {
 	PowerAddress string `json:"power_address"`
 	PowerUser    string `json:"power_user"`
 	PowerPass    string `json:"power_pass"`
 }
 
-func (p *Power) UnmarshalJSON(data []byte) error {
-	mid := &powerMid{}
-	err := json.Unmarshal(data, mid)
+func (p *PowerParameters) UnmarshalJSON(data []byte) error {
+	mid := &powerParametersMid{}
+	err := Unmarshal(data, mid)
 	if err != nil {
 		return err
 	}
@@ -30,6 +28,13 @@ func (p *Power) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (p Power) MarshalJSON() ([]byte, error) {
-	return p.Raw, nil
+func (p PowerParameters) MarshalJSON() ([]byte, error) {
+	if p.Raw != nil {
+		return p.Raw, nil
+	}
+	mid := &powerParametersMid{}
+	mid.PowerAddress = p.PowerAddress
+	mid.PowerUser = p.PowerUser
+	mid.PowerPass = p.PowerPass
+	return Marshal(mid)
 }

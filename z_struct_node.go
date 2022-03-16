@@ -47,10 +47,3 @@ type Node struct {
 	InterfaceTestStatus          ScriptStatus `json:"interface_test_status"`
 	InterfaceTestStatusName      string       `json:"interface_test_status_name"`
 }
-
-func (n *Node) recursiveClient() {
-	for _, k := range n.InterfaceSet {
-		k.setClient(n.getClient())
-	}
-	n.Domain.setClient(n.getClient())
-}

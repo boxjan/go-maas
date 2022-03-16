@@ -25,9 +25,3 @@ type BlockDevice struct {
 	StoragePool        string      `json:"storage_pool"`
 	NumaNode           int         `json:"numa_node"`
 }
-
-func (b *BlockDevice) recursiveClient() {
-	for _, k := range b.Partitions {
-		k.setClient(b.getClient())
-	}
-}

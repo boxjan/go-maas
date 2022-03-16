@@ -15,7 +15,3 @@ type Subnet struct {
 	ID              int      `json:"id,omitempty"`
 	Space           string   `json:"space,omitempty"`
 }
-
-func (s *Subnet) recursiveClient() {
-	s.VLAN.setClient(s.getClient())
-}
